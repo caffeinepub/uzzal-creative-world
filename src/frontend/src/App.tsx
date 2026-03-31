@@ -18,6 +18,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Profile } from "./backend.d";
+import FloatingPdfTool from "./components/FloatingPdfTool";
+import FloatingTranslator from "./components/FloatingTranslator";
 import HomePage from "./components/HomePage";
 import AdvancedSection from "./components/settings/AdvancedSection";
 import AppearanceSection from "./components/settings/AppearanceSection";
@@ -127,6 +129,8 @@ export default function App() {
       <div className="relative min-h-screen bg-background">
         <Toaster position="bottom-right" />
         <HomePage canInstall={canInstall} onInstall={install} />
+        <FloatingPdfTool />
+        <FloatingTranslator />
         {/* Bottom Nav */}
         <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-card border border-border shadow-xl z-50">
           <button
@@ -167,6 +171,8 @@ export default function App() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Toaster position="bottom-right" />
+      <FloatingPdfTool />
+      <FloatingTranslator />
 
       <AnimatePresence>
         {sidebarOpen && (
