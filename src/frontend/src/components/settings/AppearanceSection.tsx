@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -6,6 +7,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { CheckCheck, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import type { Profile } from "../../backend.d";
 import SegmentedControl from "./SegmentedControl";
 import SettingRow from "./SettingRow";
@@ -29,9 +32,16 @@ const FONT_STYLES = ["Inter", "Roboto", "Open Sans", "Poppins", "Nunito"];
 interface Props {
   profile: Profile;
   onChange: (updater: (prev: Profile) => Profile) => void;
+  onSave?: () => void;
 }
 
-export default function AppearanceSection({ profile, onChange }: Props) {
+export default function AppearanceSection({
+  profile,
+  onChange,
+  onSave,
+}: Props) {
+  const [collapsed, setCollapsed] = useState(false);
+
   const fontSize = Number(profile.appearance.fontSize) || 14;
   const colorScheme = profile.appearance.colorScheme || "blue";
   const fontStyle = localStorage.getItem("ucw_font_style") || "Inter";
@@ -41,8 +51,37 @@ export default function AppearanceSection({ profile, onChange }: Props) {
     document.body.style.fontFamily = `'${v}', system-ui, sans-serif`;
   };
 
+  const handleSaveClose = () => {
+    setCollapsed(true);
+    onSave?.();
+  };
+
+  if (collapsed) {
+    return (
+      <div
+        data-ocid="appearance.panel"
+        className="flex items-center justify-between px-4 py-3 rounded-xl bg-card border border-border"
+      >
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <CheckCheck size={14} className="text-primary" />
+          <span>
+            Appearance <span className="text-primary font-medium">(saved)</span>
+          </span>
+        </div>
+        <button
+          type="button"
+          data-ocid="appearance.secondary_button"
+          onClick={() => setCollapsed(false)}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronDown size={14} /> Expand
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div data-ocid="appearance.panel">
       <SettingsCard title="Theme" description="Choose the app's color mode">
         <SettingRow label="Color Mode">
           <SegmentedControl
@@ -139,6 +178,25 @@ export default function AppearanceSection({ profile, onChange }: Props) {
           </Select>
         </SettingRow>
       </SettingsCard>
+
+      <div className="flex items-center justify-between pt-2">
+        <button
+          type="button"
+          data-ocid="appearance.secondary_button"
+          onClick={() => setCollapsed(true)}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronUp size={14} /> Collapse
+        </button>
+        <Button
+          data-ocid="appearance.save_button"
+          size="sm"
+          onClick={handleSaveClose}
+          className="gap-1.5"
+        >
+          <CheckCheck size={13} /> Save &amp; Close
+        </Button>
+      </div>
     </div>
   );
 }
