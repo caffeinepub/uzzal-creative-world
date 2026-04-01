@@ -19,7 +19,7 @@ export interface Category {
 const BOOKMARKS_KEY = "ucw_bookmarks";
 const CATEGORIES_KEY = "ucw_categories";
 const BOOKMARKS_VERSION_KEY = "ucw_bookmarks_version";
-const CURRENT_VERSION = "v3";
+const CURRENT_VERSION = "v4";
 
 const DEFAULT_CATEGORIES: Category[] = [
   { id: "ai", name: "AI Tools", order: 0 },
@@ -29,6 +29,7 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: "entertainment", name: "Entertainment", order: 4 },
   { id: "productivity", name: "Productivity", order: 5 },
   { id: "voice", name: "Voice & Audio", order: 6 },
+  { id: "social", name: "Social Media", order: 7 },
 ];
 
 const DEFAULT_BOOKMARKS: Bookmark[] = [
@@ -326,6 +327,87 @@ const DEFAULT_BOOKMARKS: Bookmark[] = [
     url: "https://elevenlabs.io",
     description: "AI Voice Generator — বাংলাসহ যেকোনো ভাষায় ভয়েস তৈরি করুন",
     categoryId: "voice",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_facebook",
+    name: "Facebook",
+    url: "https://facebook.com",
+    description: "Connect with friends and the world",
+    categoryId: "social",
+    pinned: true,
+    visitCount: 0,
+  },
+  {
+    id: "bm_instagram",
+    name: "Instagram",
+    url: "https://instagram.com",
+    description: "Photo & video sharing social network",
+    categoryId: "social",
+    pinned: true,
+    visitCount: 0,
+  },
+  {
+    id: "bm_tiktok",
+    name: "TikTok",
+    url: "https://tiktok.com",
+    description: "Short-form video platform",
+    categoryId: "social",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_twitter",
+    name: "X (Twitter)",
+    url: "https://x.com",
+    description: "Real-time news and social network",
+    categoryId: "social",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_linkedin",
+    name: "LinkedIn",
+    url: "https://linkedin.com",
+    description: "Professional networking platform",
+    categoryId: "social",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_pinterest",
+    name: "Pinterest",
+    url: "https://pinterest.com",
+    description: "Visual discovery and bookmarking",
+    categoryId: "social",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_snapchat",
+    name: "Snapchat",
+    url: "https://snapchat.com",
+    description: "Ephemeral photo and video sharing",
+    categoryId: "social",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_whatsapp",
+    name: "WhatsApp",
+    url: "https://web.whatsapp.com",
+    description: "Instant messaging and calls",
+    categoryId: "social",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_telegram",
+    name: "Telegram",
+    url: "https://web.telegram.org",
+    description: "Secure messaging and channels",
+    categoryId: "social",
     pinned: false,
     visitCount: 0,
   },

@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Sun,
   User,
+  Wrench,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -28,10 +29,11 @@ import NotificationsSection from "./components/settings/NotificationsSection";
 import PrivacySection from "./components/settings/PrivacySection";
 import SearchSection from "./components/settings/SearchSection";
 import UserProfileSection from "./components/settings/UserProfileSection";
+import ToolsPage from "./components/tools/ToolsPage";
 import { useActor } from "./hooks/useActor";
 import { usePWAInstall } from "./hooks/usePWAInstall";
 
-type View = "home" | "settings";
+type View = "home" | "settings" | "tools";
 type Section =
   | "appearance"
   | "bookmarks"
@@ -124,6 +126,45 @@ export default function App() {
   const activeSectionLabel =
     NAV_ITEMS.find((n) => n.id === activeSection)?.label ?? "";
 
+  if (view === "tools") {
+    return (
+      <div className="relative min-h-screen bg-background">
+        <Toaster position="bottom-right" />
+        <ToolsPage onBack={() => setView("home")} />
+        {/* Bottom Nav */}
+        <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-card border border-border shadow-xl z-50">
+          <button
+            type="button"
+            data-ocid="nav.home.link"
+            onClick={() => setView("home")}
+            className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all text-[10px] font-medium"
+          >
+            <Home size={16} />
+            Home
+          </button>
+          <button
+            type="button"
+            data-ocid="nav.tools.link"
+            onClick={() => setView("tools")}
+            className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl bg-primary/15 text-primary transition-all text-[10px] font-semibold"
+          >
+            <Wrench size={16} />
+            Tools
+          </button>
+          <button
+            type="button"
+            data-ocid="nav.settings.link"
+            onClick={() => setView("settings")}
+            className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all text-[10px] font-medium"
+          >
+            <Settings size={16} />
+            Settings
+          </button>
+        </nav>
+      </div>
+    );
+  }
+
   if (view === "home") {
     return (
       <div className="relative min-h-screen bg-background">
@@ -141,6 +182,15 @@ export default function App() {
           >
             <Home size={16} />
             Home
+          </button>
+          <button
+            type="button"
+            data-ocid="nav.tools.link"
+            onClick={() => setView("tools")}
+            className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all text-[10px] font-medium"
+          >
+            <Wrench size={16} />
+            Tools
           </button>
           {canInstall && (
             <button
@@ -349,6 +399,14 @@ export default function App() {
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all text-xs font-medium"
           >
             <Home size={14} /> Home
+          </button>
+          <button
+            type="button"
+            data-ocid="nav.tools.link"
+            onClick={() => setView("tools")}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all text-xs font-medium"
+          >
+            <Wrench size={14} /> Tools
           </button>
           {canInstall && (
             <button
