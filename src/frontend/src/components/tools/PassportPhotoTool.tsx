@@ -1,10 +1,8 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Upload } from "lucide-react";
 import { motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useCredits } from "../../hooks/useCredits";
 
 // Bangladesh passport photo: 35mm x 45mm
 // At 96dpi: 35mm = ~132px, 45mm = ~170px
@@ -29,7 +27,6 @@ export default function PassportPhotoTool() {
   const [cropBox, setCropBox] = useState({ x: 0, y: 0, w: 0, h: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imgEl, setImgEl] = useState<HTMLImageElement | null>(null);
-  const { credits, spendCredit } = useCredits();
 
   const drawCropOverlay = useCallback(
     (
@@ -211,10 +208,6 @@ export default function PassportPhotoTool() {
 
   const generateA4 = () => {
     if (!croppedDataUrl) return;
-    if (credits <= 0) {
-      toast.error("No credits left today!");
-      return;
-    }
     const canvas = a4CanvasRef.current!;
     canvas.width = A4_W;
     canvas.height = A4_H;
@@ -224,21 +217,20 @@ export default function PassportPhotoTool() {
 
     const img = new Image();
     img.onload = () => {
-      const cols = Math.floor((A4_W - 2 * MARGIN + GAP) / (PHOTO_W + GAP));
-      const rows = Math.floor((A4_H - 2 * MARGIN + GAP) / (PHOTO_H + GAP));
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          const x = MARGIN + col * (PHOTO_W + GAP);
-          const y = MARGIN + row * (PHOTO_H + GAP);
-          ctx.drawImage(img, x, y, PHOTO_W, PHOTO_H);
-          ctx.strokeStyle = "#aaaaaa";
-          ctx.lineWidth = 1;
-          ctx.strokeRect(x, y, PHOTO_W, PHOTO_H);
-        }
+      // Place exactly 3 photos: left-to-right, top-aligned
+      const positions = [
+        { x: MARGIN, y: MARGIN },
+        { x: MARGIN + PHOTO_W + GAP, y: MARGIN },
+        { x: MARGIN + 2 * (PHOTO_W + GAP), y: MARGIN },
+      ];
+      for (const { x, y } of positions) {
+        ctx.drawImage(img, x, y, PHOTO_W, PHOTO_H);
+        ctx.strokeStyle = "#aaaaaa";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, PHOTO_W, PHOTO_H);
       }
-      spendCredit();
       setA4DataUrl(canvas.toDataURL("image/jpeg", 0.95));
-      toast.success(`A4 লেআউট তৈরি হয়েছে — ${cols * rows}টি ছবি!`);
+      toast.success("A4 লেআউট তৈরি হয়েছে — ৩টি ছবি!");
     };
     img.src = croppedDataUrl;
   };
@@ -276,33 +268,16 @@ export default function PassportPhotoTool() {
         transition={{ duration: 0.3 }}
         className="space-y-4"
       >
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-foreground">
-            পাসপোর্ট ছবি / Passport Photo
-          </h2>
-          <Badge
-            variant={credits > 0 ? "secondary" : "destructive"}
-            data-ocid="tools.credits.badge"
-          >
-            {credits > 0 ? `${credits} ক্রেডিট বাকি` : "আজকের ক্রেডিট শেষ"}
-          </Badge>
-        </div>
+        <h2 className="text-base font-bold text-foreground">
+          পাসপোর্ট ছবি / Passport Photo
+        </h2>
 
         <div className="text-xs text-muted-foreground bg-card/50 border border-border rounded-lg px-3 py-2">
-          📋 বাংলাদেশ পাসপোর্ট স্পেসিফিকেশন: 35mm × 45mm • A4 পৃষ্ঠায় ১৫টি ছবি /{" "}
+          📋 বাংলাদেশ পাসপোর্ট স্পেসিফিকেশন: 35mm × 45mm • A4 পৃষ্ঠায় ৩টি ছবি /{" "}
           <span className="text-primary font-medium">
-            BD Passport Spec: 35mm × 45mm • 15 photos on A4 page
+            BD Passport Spec: 35mm × 45mm • 3 photos on A4 page
           </span>
         </div>
-
-        {credits <= 0 && (
-          <div
-            className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg"
-            data-ocid="tools.credits.error_state"
-          >
-            আজকের ক্রেডিট শেষ। আগামীকাল রিসেট হবে। / Resets tomorrow.
-          </div>
-        )}
 
         {/* Upload */}
         {!hasImage && (
@@ -432,14 +407,13 @@ export default function PassportPhotoTool() {
                 <Button
                   size="sm"
                   onClick={generateA4}
-                  disabled={credits <= 0}
                   data-ocid="tools.passport.secondary_button"
                   className="gap-1.5 text-xs w-full"
                 >
                   🖼️ A4 লেআউট তৈরি করুন / Generate A4 Layout
                 </Button>
                 <p className="text-[10px] text-muted-foreground">
-                  A4 পৃষ্ঠায় ১৫টি ছবি / 15 photos on A4 page
+                  A4 পৃষ্ঠায় ৩টি ছবি / 3 photos on A4 page
                 </p>
                 <Button
                   size="sm"

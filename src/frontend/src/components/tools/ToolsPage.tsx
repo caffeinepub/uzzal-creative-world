@@ -4,7 +4,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +21,6 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useCredits } from "../../hooks/useCredits";
 import BackgroundRemoveTool from "./BackgroundRemoveTool";
 import PassportPhotoTool from "./PassportPhotoTool";
 import TextRemoveTool from "./TextRemoveTool";
@@ -60,16 +58,16 @@ const TOOLS: Tool[] = [
     icon: <Scissors size={24} />,
     namebn: "পাসপোর্ট সাইজ ছবি",
     nameen: "Passport Size Photo",
-    descbn: "বাংলাদেশের আইন অনুযায়ী A4 পৃষ্ঠায় ১৫টি পাসপোর্ট ছবি তৈরি করুন",
+    descbn: "বাংলাদেশের আইন অনুযায়ী A4 পৃষ্ঠায় ৩টি পাসপোর্ট ছবি তৈরি করুন",
     color: "text-green-400",
   },
 ];
 
 const FAQS = [
   {
-    id: "faq-credits",
-    q: "প্রতিদিন কতটি ক্রেডিট পাব? / How many credits per day?",
-    a: "প্রতিদিন ১০টি বিনামূল্যে ক্রেডিট পাবেন যা মধ্যরাতে রিসেট হয়। / You get 10 free credits per day that reset at midnight.",
+    id: "faq-free",
+    q: "টুলগুলো কি বিনামূল্যে? / Are the tools free?",
+    a: "হ্যাঁ, সমস্ত টুল সম্পূর্ণ বিনামূল্যে এবং কোনো সীমাবদ্ধতা নেই। / Yes, all tools are completely free with no usage limits.",
   },
   {
     id: "faq-formats",
@@ -79,7 +77,7 @@ const FAQS = [
   {
     id: "faq-size",
     q: "পাসপোর্ট ছবির সাইজ কত? / What is the passport photo size?",
-    a: "বাংলাদেশের পাসপোর্টের জন্য 35mm × 45mm সাইজ প্রযোজ্য। A4 পৃষ্ঠায় ১৫টি ছবি সাজানো হয়। / 35mm × 45mm as per Bangladesh passport regulations.",
+    a: "বাংলাদেশের পাসপোর্টের জন্য 35mm × 45mm সাইজ প্রযোজ্য। A4 পৃষ্ঠায় ৩টি ছবি সাজানো হয়। / 35mm × 45mm as per Bangladesh passport regulations. 3 photos per A4 page.",
   },
   {
     id: "faq-privacy",
@@ -127,7 +125,6 @@ interface ToolsPageProps {
 export default function ToolsPage({ onBack }: ToolsPageProps) {
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
   const [feedback, setFeedback] = useState("");
-  const { credits } = useCredits();
 
   const selectedTool = TOOLS.find((t) => t.id === activeTool);
 
@@ -171,13 +168,6 @@ export default function ToolsPage({ onBack }: ToolsPageProps) {
         <span className="text-sm font-bold text-foreground flex-1">
           {activeTool ? selectedTool?.nameen : "🛠️ Tools"}
         </span>
-        <Badge
-          variant="outline"
-          className="text-xs"
-          data-ocid="tools.header.badge"
-        >
-          {credits}/10 ক্রেডিট
-        </Badge>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6">

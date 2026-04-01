@@ -1,18 +1,15 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Download, ImageIcon, RefreshCw, Upload } from "lucide-react";
 import { motion } from "motion/react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useCredits } from "../../hooks/useCredits";
 
 export default function BackgroundRemoveTool() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tolerance, setTolerance] = useState(30);
   const [hasImage, setHasImage] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const { credits, spendCredit } = useCredits();
 
   const loadImage = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -91,10 +88,6 @@ export default function BackgroundRemoveTool() {
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!hasImage) return;
-    if (credits <= 0) {
-      toast.error("No credits left today. Resets tomorrow!");
-      return;
-    }
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -102,13 +95,12 @@ export default function BackgroundRemoveTool() {
     const x = Math.floor((e.clientX - rect.left) * scaleX);
     const y = Math.floor((e.clientY - rect.top) * scaleY);
     floodFill(x, y);
-    spendCredit();
     toast.success("Background removed!");
   };
 
   const handleCanvasTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    if (!hasImage || credits <= 0) return;
+    if (!hasImage) return;
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
@@ -117,7 +109,6 @@ export default function BackgroundRemoveTool() {
     const x = Math.floor((touch.clientX - rect.left) * scaleX);
     const y = Math.floor((touch.clientY - rect.top) * scaleY);
     floodFill(x, y);
-    spendCredit();
   };
 
   const downloadPng = () => {
@@ -160,28 +151,9 @@ export default function BackgroundRemoveTool() {
       transition={{ duration: 0.3 }}
       className="space-y-4"
     >
-      {/* Credit badge */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold text-foreground">
-          ব্যাকগ্রাউন্ড মুছুন / Background Remove
-        </h2>
-        <Badge
-          variant={credits > 0 ? "secondary" : "destructive"}
-          data-ocid="tools.credits.badge"
-        >
-          {credits > 0 ? `${credits} ক্রেডিট বাকি` : "আজকের ক্রেডিট শেষ"}
-        </Badge>
-      </div>
-
-      {credits <= 0 && (
-        <div
-          className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg"
-          data-ocid="tools.credits.error_state"
-        >
-          আজকের ক্রেডিট শেষ হয়ে গেছে। আগামীকাল রিসেট হবে। / Today's credits
-          exhausted. Resets tomorrow.
-        </div>
-      )}
+      <h2 className="text-base font-bold text-foreground">
+        ব্যাকগ্রাউন্ড মুছুন / Background Remove
+      </h2>
 
       {/* Upload zone */}
       {!hasImage && (
