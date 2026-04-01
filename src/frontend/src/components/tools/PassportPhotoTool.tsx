@@ -15,20 +15,24 @@ const GAP = 15;
 
 export default function PassportPhotoTool() {
   const a4CanvasRef = useRef<HTMLCanvasElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [a4DataUrl, setA4DataUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const loadFile = (file: File) => {
     if (!file.type.startsWith("image/")) {
       toast.error("শুধু ছবি ফাইল আপলোড করুন");
       return;
     }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    setA4DataUrl(null);
-    toast.success("ছবি আপলোড হয়েছে!");
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      setImageDataUrl(result);
+      setA4DataUrl(null);
+      toast.success("ছবি আপলোড হয়েছে!");
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,45 +49,59 @@ export default function PassportPhotoTool() {
   };
 
   const generateA4 = () => {
-    if (!previewUrl) return;
+    if (!imageDataUrl) return;
+    setIsGenerating(true);
     const img = new Image();
     img.onload = () => {
-      const canvas = a4CanvasRef.current!;
+      const canvas = a4CanvasRef.current;
+      if (!canvas) {
+        setIsGenerating(false);
+        return;
+      }
       canvas.width = A4_W;
       canvas.height = A4_H;
-      const ctx = canvas.getContext("2d")!;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        setIsGenerating(false);
+        return;
+      }
 
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, A4_W, A4_H);
 
+      const srcAspect = img.width / img.height;
+      const dstAspect = PHOTO_W / PHOTO_H;
+      let sx = 0;
+      let sy = 0;
+      let sw = img.width;
+      let sh = img.height;
+      if (srcAspect > dstAspect) {
+        sw = img.height * dstAspect;
+        sx = (img.width - sw) / 2;
+      } else {
+        sh = img.width / dstAspect;
+        sy = (img.height - sh) / 2;
+      }
+
       for (let i = 0; i < 3; i++) {
         const x = MARGIN_LEFT + i * (PHOTO_W + GAP);
         const y = MARGIN_TOP;
-
-        const srcAspect = img.width / img.height;
-        const dstAspect = PHOTO_W / PHOTO_H;
-        let sx = 0;
-        let sy = 0;
-        let sw = img.width;
-        let sh = img.height;
-        if (srcAspect > dstAspect) {
-          sw = img.height * dstAspect;
-          sx = (img.width - sw) / 2;
-        } else {
-          sh = img.width / dstAspect;
-          sy = (img.height - sh) / 2;
-        }
         ctx.drawImage(img, sx, sy, sw, sh, x, y, PHOTO_W, PHOTO_H);
-
         ctx.strokeStyle = "#999999";
         ctx.lineWidth = 1;
         ctx.strokeRect(x, y, PHOTO_W, PHOTO_H);
       }
 
-      setA4DataUrl(canvas.toDataURL("image/jpeg", 0.96));
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.96);
+      setA4DataUrl(dataUrl);
+      setIsGenerating(false);
       toast.success("A4 লেআউট তৈরি হয়েছে — ৩টি ছবি!");
     };
-    img.src = previewUrl;
+    img.onerror = () => {
+      setIsGenerating(false);
+      toast.error("ছবি লোড করতে সমস্যা হয়েছে, আবার চেষ্টা করুন");
+    };
+    img.src = imageDataUrl;
   };
 
   const downloadJpg = () => {
@@ -110,13 +128,13 @@ export default function PassportPhotoTool() {
   };
 
   const reset = () => {
-    setPreviewUrl(null);
+    setImageDataUrl(null);
     setA4DataUrl(null);
   };
 
   return (
     <>
-      <canvas ref={a4CanvasRef} className="hidden" />
+      <canvas ref={a4CanvasRef} style={{ display: "none" }} />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -132,7 +150,7 @@ export default function PassportPhotoTool() {
           📋 BD Passport: 35mm × 45mm • A4-এ ৩টি ছবি পাশাপাশি, উপর-বাম থেকে শুরু
         </div>
 
-        {!previewUrl && (
+        {!imageDataUrl && (
           <label
             htmlFor="passport-file-input"
             data-ocid="tools.passport.dropzone"
@@ -158,7 +176,6 @@ export default function PassportPhotoTool() {
               </p>
             </div>
             <input
-              ref={fileInputRef}
               id="passport-file-input"
               type="file"
               accept="image/*"
@@ -169,11 +186,11 @@ export default function PassportPhotoTool() {
           </label>
         )}
 
-        {previewUrl && !a4DataUrl && (
+        {imageDataUrl && !a4DataUrl && (
           <div className="space-y-4">
             <div className="rounded-xl border border-border overflow-hidden bg-black/5">
               <img
-                src={previewUrl}
+                src={imageDataUrl}
                 alt="আপলোড করা ছবি"
                 className="w-full max-h-64 object-contain"
               />
@@ -183,10 +200,13 @@ export default function PassportPhotoTool() {
               <Button
                 size="sm"
                 onClick={generateA4}
+                disabled={isGenerating}
                 data-ocid="tools.passport.primary_button"
                 className="gap-1.5 text-sm px-5"
               >
-                🖼️ Generate A4 Layout (৩টি ছবি)
+                {isGenerating
+                  ? "তৈরি হচ্ছে..."
+                  : "🖼️ Generate A4 Layout (৩টি ছবি)"}
               </Button>
               <Button
                 size="sm"
@@ -235,7 +255,7 @@ export default function PassportPhotoTool() {
                 onClick={reset}
                 className="gap-1.5 text-xs"
               >
-                <Upload size={13} /> নতুন জবি
+                <Upload size={13} /> নতুন ছবি
               </Button>
             </div>
           </div>
