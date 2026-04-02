@@ -19,7 +19,7 @@ export interface Category {
 const BOOKMARKS_KEY = "ucw_bookmarks";
 const CATEGORIES_KEY = "ucw_categories";
 const BOOKMARKS_VERSION_KEY = "ucw_bookmarks_version";
-const CURRENT_VERSION = "v4";
+const CURRENT_VERSION = "v5";
 
 const DEFAULT_CATEGORIES: Category[] = [
   { id: "ai", name: "AI Tools", order: 0 },
@@ -164,6 +164,24 @@ const DEFAULT_BOOKMARKS: Bookmark[] = [
     name: "Loveable",
     url: "https://lovable.dev",
     description: "Build full-stack apps with AI",
+    categoryId: "ai",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_toolfk",
+    name: "ToolFK",
+    url: "https://toolfk.com",
+    description: "Free online AI & web tools collection",
+    categoryId: "ai",
+    pinned: false,
+    visitCount: 0,
+  },
+  {
+    id: "bm_uncensored_ai",
+    name: "Uncensored AI",
+    url: "https://uncensored.com/ai",
+    description: "Uncensored AI chat and tools",
     categoryId: "ai",
     pinned: false,
     visitCount: 0,
